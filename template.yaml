@@ -5,38 +5,47 @@ Description: >
 
   Sample SAM Template for outlook-schedule-fetcher-sample
 
-# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
   Function:
-    Timeout: 3
+    Timeout: 10
     MemorySize: 128
 
+Parameters:
+  AzureTenantID:
+    Type: String
+  AzureAppID:
+    Type: String
+  AzureAppSecret:
+    Type: String
+  AzureUserPrincipalName:
+    Type: String
+
 Resources:
-  HelloWorldFunction:
-    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+  OutlookScheduleFetcherFunction:
+    Type: AWS::Serverless::Function
     Properties:
-      CodeUri: hello_world/
+      CodeUri: outlook_schedule_fetcher/
       Handler: app.lambda_handler
       Runtime: ruby3.2
+      Environment:
+        Variables:
+          AZURE_TENANT_ID: !Ref AzureTenantID
+          AZURE_APP_ID: !Ref AzureAppID
+          AZURE_APP_SECRET: !Ref AzureAppSecret
+          AZURE_USER_PRINCIPAL_NAME: !Ref AzureUserPrincipalName
       Architectures:
         - x86_64
       Events:
-        HelloWorld:
-          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+        Schedule:
+          Type: ScheduleV2
           Properties:
-            Path: /hello
-            Method: get
+            ScheduleExpression: cron(* * ? * * *)
+            ScheduleExpressionTimezone: Japan
 
 Outputs:
-  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
-  # Find out more about other implicit resources you can reference within SAM
-  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
-  HelloWorldApi:
-    Description: "API Gateway endpoint URL for Prod stage for Hello World function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/"
-  HelloWorldFunction:
-    Description: "Hello World Lambda Function ARN"
-    Value: !GetAtt HelloWorldFunction.Arn
-  HelloWorldFunctionIamRole:
-    Description: "Implicit IAM Role created for Hello World function"
-    Value: !GetAtt HelloWorldFunctionRole.Arn
+  OutlookScheduleFetcherFunction:
+    Description: "Outlook Schedule Fetcher Lambda Function ARN"
+    Value: !GetAtt OutlookScheduleFetcherFunction.Arn
+  OutlookScheduleFetcherFunctionIamRole:
+    Description: "Implicit IAM Role created for Outlook Schedule Fecther function"
+    Value: !GetAtt OutlookScheduleFetcherFunctionRole.Arn
