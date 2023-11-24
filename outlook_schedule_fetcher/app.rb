@@ -1,6 +1,8 @@
 require 'json'
 require 'faraday'
 require 'uri'
+require 'time'
+require 'date'
 
 def auth_azure(tenant_id, client_id, client_secret)
   url = "https://login.microsoftonline.com/#{tenant_id}/oauth2/v2.0/token"
@@ -25,8 +27,8 @@ def fetch_schedules(access_token, azure_user_principal_name)
     req.headers['Accept'] = 'application/json'
     req.headers['Prefer'] = "outlook.timezone=\"Asia/Tokyo\""
     req.params = {
-      startDateTime: Time.parse('2023-11-22').iso8601,
-      endDateTime: Time.parse('2023-11-23').iso8601,
+      startDateTime: Date.today.to_time.iso8601,
+      endDateTime: (Date.today + 1).to_time.iso8601,
       orderby: 'start/dateTime asc'
     }
   end
